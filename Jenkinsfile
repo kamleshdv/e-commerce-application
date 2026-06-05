@@ -15,7 +15,7 @@ pipeline {
             steps {
                 echo '📦 Pulling code from GitHub...'
                 git branch: 'main', 
-                    url: 'kk'  // 🔁 Replace
+                    url: 'https://github.com/kamleshdv/e-commerce-application.git'  // 🔁 Replace
                 echo '✅ Code pulled successfully'
             }
         }
