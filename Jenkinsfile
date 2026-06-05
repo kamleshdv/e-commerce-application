@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_HUB_USER = "kamleshdv"      // 🔁 Apna username daalo
+        DOCKER_HUB_USER = "kamleshdv"
         IMAGE_NAME = "ecommerce-app"
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
@@ -22,7 +22,7 @@ pipeline {
         stage('SonarQube Code Analysis') {
             steps {
                 echo '🔍 Running SonarQube analysis...'
-                withSonarQubeEnv('sonarqube-server') {   // Ye Jenkins "Configure System" mein banaya tha
+                withSonarQubeEnv('sonarqube-server') {
                     sh 'sonar-scanner'
                 }
                 echo '✅ SonarQube analysis completed'
@@ -63,19 +63,27 @@ pipeline {
             }
         }
         
-        // 6. PUSH TO DOCKER HUB
+        // 6. PUSH TO DOCKER HUB (✅ FIXED - latest tag ka error nahi aayega)
         stage('Push to Docker Hub') {
             steps {
                 echo '☁️ Pushing image to Docker Hub...'
                 withCredentials([usernamePassword(
-                    credentialsId: 'DOCKER_HUB_PASS',     // 🔑 Aapne ye naam rakha tha
+                    credentialsId: 'DOCKER_HUB_PASS',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh """
                         docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}
+                        
+                        # Push with build number tag
                         docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                        
+                        # Tag as 'latest' and push
+                        docker tag ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest
                         docker push ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest
+                        
+                        echo "✅ Pushed: ${DOCKER_HUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
+                        echo "✅ Pushed: ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
                     """
                 }
                 echo '✅ Image pushed to Docker Hub!'
