@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout from GitHub') {
             steps {
                 echo '📦 Pulling code from GitHub...'
-                git url: 'https://github.com/yourusername/ecommerce-app.git', branch: 'main'
+                git url: 'https://github.com/kamleshdv/e-commerce-application.git', branch: 'main'
                 echo '✅ Code pulled successfully'
             }
         }
