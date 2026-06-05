@@ -1,4 +1,4 @@
-# ---- Stage 1: Build Stage ----
+# ---- Build Stage ----
 FROM node:18-alpine AS builder
 
 WORKDIR /app
@@ -22,7 +22,7 @@ RUN \
     else npm run build; \
     fi
 
-# ---- Stage 2: Production Stage ----
+# ---- Production Stage ----
 FROM node:18-alpine AS runner
 
 WORKDIR /app
@@ -30,22 +30,20 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user
+# Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy necessary files from builder
+# Copy necessary files from the builder stage
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy package.json for any runtime needs
 COPY --from=builder /app/package.json ./package.json
 
 # Switch to non-root user
 USER nextjs
 
-# Expose port
+# Expose the port
 EXPOSE 3000
 
 ENV PORT=3000
